@@ -7,7 +7,8 @@ use Illuminate\Support\Facades\Auth;
 use App\Role;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use DataTables;
+use Illuminate\Support\Facades\Validator;
+use Yajra\DataTables\Facades\DataTables;
 
 class UserController extends Controller
 {
@@ -16,9 +17,10 @@ class UserController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request)
+    public function index()
     {
-        return view('admin.users.index');
+        $active = 'pegawai';
+        return view('admin.users.index', compact('active'));
     }
 
     public function getuser(Request $request)
@@ -34,10 +36,11 @@ class UserController extends Controller
         ]);
 
 
-        $datatables = Datatables::of($user)->editColumn('name', function ($user) {
-            $id = $user->id;
-            return '<span id="' . $id . '" style="cursor:pointer;" class="btn-user">' . $user->name;
-        })
+        $datatables = DataTables::of($user)
+            ->editColumn('name', function ($user) {
+                $id = $user->id;
+                return '<span id="' . $id . '" style="cursor:pointer;" class="btn-user">' . $user->name;
+            })
             ->addColumn('action', function ($row) {
                 $btn1 = '<button id="edit-user" data-toggle="modal" data-target="#editModal" data-email="' . $row->email . '" data-nama="' . $row->name . '" data-password="' . $row->password . '" data-id="' . $row->id . '" class="delete btn btn-info btn-sm">
                 <i class="fas fa-edit"></i>
@@ -53,9 +56,9 @@ class UserController extends Controller
               <i class="fas fa-toggle-on"></i>
                 </button>';
 
-                if (\DB::table('users')->where('id', $row->id)->value('status') == 'aktif') {
+                if ($row->status == 'aktif') {
                     return $btn1;
-                } elseif (\DB::table('users')->where('id', $row->id)->value('status') == 'non-aktif') {
+                } elseif ($row->status == 'non-aktif') {
                     return $btn2;
                 }
             })
@@ -185,7 +188,7 @@ class UserController extends Controller
 
     public function change(Request $request)
     {
-        \Validator::make($request->all(), [
+        Validator::make($request->all(), [
             'password'  => 'required|min:5|max:20',
             'ulangipassword'   => 'required|same:password',
         ])->validate();

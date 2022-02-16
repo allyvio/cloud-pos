@@ -1,44 +1,65 @@
-@extends('layouts.master')
+@extends('admin._layouts.master')
 
 @section('content')
 
 <section class="content">
-    <div class="row justify-content-center mt-3">
-        <div class="col-md-10">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">Daftar Pegawai</h3>
-                </div>
-                
-                <!-- /.card-header -->
-                <div class="card-body">
-                    <div class="mb-3">
-                        <button class="btn btn-primary" data-toggle="modal" data-target="#createModal" id="create">Tambah Pegawai</button>
+    <div class="header bg-primary pb-6">
+        <div class="container-fluid">
+            <div class="header-body">
+                <div class="row align-items-center py-4">
+                    <div class="col-lg-6 col-7">
+                        <h6 class="h2 text-white d-inline-block mb-0">Pegawai Saya</h6>
+                        <nav aria-label="breadcrumb" class="d-none d-md-inline-block ml-md-4">
+                            <ol class="breadcrumb breadcrumb-links breadcrumb-dark">
+                                <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fas fa-home"></i></a></li>
+                                <li class="breadcrumb-item"><a href="#">Pegawai</a></li>
+                            </ol>
+                        </nav>
                     </div>
-                    <table id="example2" class="dataTable table table-bordered table-hover">
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>Nama</th>
-                                <th>Email</th>
-                                <th>Status</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        
-                    </table>
                 </div>
-                <!-- /.card-body -->
             </div>
-            <!-- /.card -->
-            <!-- /.card -->
         </div>
-        <!-- /.col -->
     </div>
-    <!-- /.row -->
+    
+    <div class="container-fluid mt--6">
+        <!-- Table -->
+        <div class="row">
+            <div class="col">
+                <div class="card">
+                    <!-- Card header -->
+                    <div class="card-header">
+                        <div class="row">
+                            <div class="col-4">
+                                <h3 class="mb-0">List Data Pegawai</h3>
+                            </div>
+                            <div class="col-8 text-right">
+                                <button class="btn btn-sm btn-primary" data-toggle="modal" data-target="#createModal" id="create">Tambah Pegawai</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="table-responsive py-4">
+                        <table class="table table-flush" id="dataTable">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th>No</th>
+                                    <th>Nama</th>
+                                    <th>Email</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+    </div>
 </section>
 
+@endsection
 
+@section('modal')
 
 <!-- Create Modal -->
 <div class="modal fade" id="createModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
@@ -76,13 +97,12 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary" id="save-btn">Simpan</button>
+                    <button type="submit" class="btn btn-primary">Simpan</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
-
 
 <!-- Edit Modal -->
 <div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
@@ -131,13 +151,13 @@
                 @csrf
                 {{method_field('DELETE')}}
                 <div class="modal-body">
-                    <input type="hidden" name="id" id="id" value="">
+                    <input type="hidden" name="id" id="__id" value="">
                     Apakah anda yakin akan menonaktifkan akun ini ?
                     
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary" id="save-btn">Submit</button>
+                    <button type="submit" class="btn btn-primary">Submit</button>
                 </div>
             </form>
         </div>
@@ -165,23 +185,25 @@
                     </div>
                     <div class="form-group">
                         <label for="status" class="col-form-label">Konfirmasi Password:</label>
-                        <input type="password" name="confirm_password" id="confirm_password" class="form-control">
+                        <input type="password" name="confirm_password" id="_confirm_password" class="form-control">
                     </div>
                     
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary" id="save-btn">Submit</button>
+                    <button type="submit" class="btn btn-primary">Submit</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
+
 @endsection
 
-@section('footer')
-<script>
+@section('script')
 
+<script>
+    
     $('#aktifForm').validate({
         rules: {
             password: {
@@ -213,7 +235,7 @@
             }
         }
     });
-
+    
     $('#editForm').validate({
         rules: {
             name: {
@@ -228,7 +250,7 @@
 </script>
 <script>
     $(document).ready(function(){
-        var table = $('.dataTable').DataTable({
+        var table = $('#dataTable').DataTable({
             "pageLength":5,
             processing:true,
             searching:true,
@@ -236,13 +258,16 @@
             info:false,
             lengthMenu: [[2,3,4,5,-1],[2,3,4,5,"All"]],
             serverside:true,
-            ordering:false,
+            language: { 
+                paginate: { previous: "<i class='fas fa-angle-left'>", next: "<i class='fas fa-angle-right'>"
+                }
+            },
             ajax:"{{route('ajax.get.user')}}",
             columns: [
             {data: 'rownum', name: 'rownum'},
             {data: 'name', name: 'name'},
             {data: 'email', name: 'email'},
-             {data: 'status', name: 'status'},
+            {data: 'status', name: 'status'},
             {data: 'action', name: 'action'}
             ]
             
@@ -268,7 +293,7 @@
             var id = button.data('id')
             
             var modal = $(this)
-            modal.find('.modal-body #id').val(id)
+            modal.find('.modal-body #__id').val(id)
             
         });
         
@@ -286,5 +311,6 @@
         
     });
 </script>
+
 
 @stop

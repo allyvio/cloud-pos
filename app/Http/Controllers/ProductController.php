@@ -6,9 +6,9 @@ use App\Order;
 use App\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use DataTables;
 use App\Category;
 use Illuminate\Support\Facades\Auth;
+use Yajra\DataTables\Facades\DataTables;
 
 class ProductController extends Controller
 {
@@ -19,9 +19,10 @@ class ProductController extends Controller
      */
     public function index(Request $request)
     {
+        $active = 'produk';
         $category = Category::all();
         // dd($category);
-        return view('admin.product.index', compact('category'));
+        return view('admin.product.index', compact('category', 'active'));
     }
 
     public function getproduk(Request $request)
@@ -65,7 +66,7 @@ class ProductController extends Controller
         // dd($barang)
 
 
-        $datatables = Datatables::of($barang)
+        $datatables = DataTables::of($barang)
             ->editColumn('product_name', function ($row) {
                 return $row->product_name . ' - ' . $row->warna;
             })
@@ -76,9 +77,12 @@ class ProductController extends Controller
             ->editColumn('harga_beli', function ($row) {
                 return number_format($row->harga_beli);
             })
+            ->editColumn('final_price', function ($row) {
+                return number_format($row->final_price);
+            })
             ->addColumn('temp_stock', function ($row) {
                 $stock = DB::table('product_shop')->where('product_id', $row->id)->sum('temp_stock');
-                $stock_ = Product::where('id', $row->id)->value('stock');
+                $stock_ = $row->stock;
                 return $stock_ - $stock;
             })
             ->addColumn('action', function ($row) {

@@ -1,43 +1,65 @@
-@extends('layouts.master')
+@extends('admin._layouts.master')
 
 @section('content')
 
-{{-- @dd($id_) --}}
-
 <section class="content">
-	<div class="row justify-content-center mt-3">
-		<div class="col-md-10">
-			<div class="card">
-				<div class="card-header">
-					<h3 class="card-title">Daftar Pegawai</h3>
-				</div>
-
-				<!-- /.card-header -->
-				<div class="card-body">
-					<div class="mb-3">
-						<button class="btn btn-primary" data-toggle="modal" data-target="#createModal" id="create">Tambah Pegawai</button>
+	<div class="header bg-primary pb-6">
+		<div class="container-fluid">
+			<div class="header-body">
+				<div class="row align-items-center py-4">
+					<div class="col-lg-6 col-7">
+						<h6 class="h2 text-white d-inline-block mb-0">Pegawai Toko</h6>
+						<nav aria-label="breadcrumb" class="d-none d-md-inline-block ml-md-4">
+							<ol class="breadcrumb breadcrumb-links breadcrumb-dark">
+								<li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fas fa-home"></i></a></li>
+								<li class="breadcrumb-item"><a href="{{url('shop', $id_)}}">{{$shop}}</i></a></li>
+								<li class="breadcrumb-item"><a href="#">Pegawai</a></li>
+							</ol>
+						</nav>
 					</div>
-					<table id="dataTable" class="table table-bordered table-hover">
-						<thead>
-							<tr>
-								<th>No</th>
-								<th>Nama</th>
-								<th>Email</th>
-								<th>Action</th>
-							</tr>
-						</thead>
-
-					</table>
 				</div>
-				<!-- /.card-body -->
 			</div>
-			<!-- /.card -->
-			<!-- /.card -->
 		</div>
-		<!-- /.col -->
 	</div>
-	<!-- /.row -->
+	
+	<div class="container-fluid mt--6">
+		<!-- Table -->
+		<div class="row">
+			<div class="col">
+				<div class="card">
+					<!-- Card header -->
+					<div class="card-header">
+						<div class="row">
+							<div class="col-4">
+								<h3 class="mb-0">List Data Pegawai</h3>
+							</div>
+							<div class="col-8 text-right">
+								<button class="btn btn-sm btn-primary" data-toggle="modal" data-target="#createModal" id="create">Tambah Pegawai</button>
+							</div>
+						</div>
+					</div>
+					<div class="table-responsive py-4">
+						<table class="table table-flush" id="dataTable">
+							<thead class="thead-light">
+								<tr>
+									<th>No</th>
+									<th>Nama</th>
+									<th>Email</th>
+									<th>Action</th>
+								</tr>
+							</thead>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+	</div>
 </section>
+
+@endsection
+
+@section('modal')
 
 <!-- Create Modal -->
 <div class="modal fade" id="createModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
@@ -57,7 +79,7 @@
 					<input type="hidden" name="shop_id" id="shop_id" value="{{$id_}}">
 					<div class="form-group">
 						<label for="status" class="col-form-label">Nama Pegawai:</label>
-						<select name="user_id" id="user_id" class="custom-select">
+						<select name="user_id" id="user_id" class="form-control" data-toggle="select">
 							@foreach ($pegawai as $item)
 							<option value="{{$item->id}}">{{$item->name}}</option>
 							@endforeach
@@ -79,7 +101,7 @@
 	<div class="modal-dialog modal-dialog-centered" role="document">
 		<div class="modal-content">
 			<div class="modal-header">
-				<h5 class="modal-title" id="modal-title">Edit Pegawai</h5>
+				<h5 class="modal-title" id="modal-title">Hapus Pegawai</h5>
 				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span>
 				</button>
@@ -105,7 +127,8 @@
 
 @endsection
 
-@section('footer')
+@section('script')
+
 
 <script>
 	$(document).ready(function(){
@@ -118,10 +141,21 @@
 			lengthMenu: [[2,3,4,5,-1],[2,3,4,5,"All"]],
 			serverside:true,
 			ordering:false,
+			language: { 
+				paginate: { previous: "<i class='fas fa-angle-left'>", next: "<i class='fas fa-angle-right'>"
+				}
+			},
 			ajax:"{{url('getusertoko/'.$id_)}}",
 			columns: [
-			{data: 'rownum', name: 'rownum'},
-			{data: 'user_id', name: 'user_id'},
+			{
+				data: null,
+				searchable: false,
+				orderable: false,
+				render: function (data, type, row, meta) {
+					return meta.row + meta.settings._iDisplayStart + 1;
+				}  
+			},
+			{data: 'name', name: 'name'},
 			{data: 'email', name: 'email'},
 			{data: 'action', name: 'action'},
 			]
@@ -147,5 +181,6 @@
 
 	});
 </script>
+
 
 @stop

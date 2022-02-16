@@ -1,46 +1,67 @@
-@extends('layouts.master')
+@extends('admin._layouts.master')
 
 @section('content')
 
-{{-- @dd($id_) --}}
-
 <section class="content">
-	<div class="row justify-content-center mt-3">
-		<div class="col-md-10">
-			<div class="card">
-				<div class="card-header">
-					<h3 class="card-title">Daftar Produk</h3>
-				</div>
-
-				<!-- /.card-header -->
-				<div class="card-body">
-					<div class="mb-3">
-						<button class="btn btn-primary" data-toggle="modal" data-target="#createModal" id="create">Tambah Produk</button>
-						<a class="btn btn-info ml-auto" href="{{url('rekapStockToko', $id_)}}">Rekap Stock</a>
+	<div class="header bg-primary pb-6">
+		<div class="container-fluid">
+			<div class="header-body">
+				<div class="row align-items-center py-4">
+					<div class="col-lg-6 col-7">
+						<h6 class="h2 text-white d-inline-block mb-0">Produk Toko</h6>
+						<nav aria-label="breadcrumb" class="d-none d-md-inline-block ml-md-4">
+							<ol class="breadcrumb breadcrumb-links breadcrumb-dark">
+								<li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fas fa-home"></i></a></li>
+								<li class="breadcrumb-item"><a href="{{url('shop', $id_)}}">{{$shop}}</i></a></li>
+								<li class="breadcrumb-item"><a href="#">Produk</a></li>
+							</ol>
+						</nav>
 					</div>
-
-					<table id="dataTable" class="table table-bordered table-hover">
-						<thead>
-							<tr>
-								<th>No</th>
-								<th>Nama</th>
-								<th>Stock</th>
-								<th>Harga</th>
-								<th>Action</th>
-							</tr>
-						</thead>
-
-					</table>
 				</div>
-				<!-- /.card-body -->
 			</div>
-			<!-- /.card -->
-			<!-- /.card -->
 		</div>
-		<!-- /.col -->
 	</div>
-	<!-- /.row -->
+	
+	<div class="container-fluid mt--6">
+		<!-- Table -->
+		<div class="row">
+			<div class="col">
+				<div class="card">
+					<!-- Card header -->
+					<div class="card-header">
+						<div class="row">
+							<div class="col-4">
+								<h3 class="mb-0">List Data Produk</h3>
+							</div>
+							<div class="col-8 text-right">
+								<button class="btn btn-sm btn-primary" data-toggle="modal" data-target="#createModal" id="create">Tambah Produk</button>
+								<a href="{{url('rekapStockToko', $id_)}}" class="btn btn-sm btn-primary">Rekap Stok</a>
+							</div>
+						</div>
+					</div>
+					<div class="table-responsive py-4">
+						<table class="table table-flush" id="dataTable">
+							<thead class="thead-light">
+								<tr>
+									<th>No</th>
+									<th>Nama</th>
+									<th>Stok</th>
+									<th>Harga</th>
+									<th>Action</th>
+								</tr>
+							</thead>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+	</div>
 </section>
+
+@endsection
+
+@section('modal')
 
 <!-- Create Modal -->
 <div class="modal fade" id="createModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
@@ -54,7 +75,7 @@
 			</div>
 			<form id="addForm" action="{{url('post-product-toko')}}" method="POST" enctype="multipart/form-data">
 				@csrf
-
+				
 				<div class="modal-body">
 					<input type="hidden" name="shop_id" id="shop_id" value="{{$id_}}">
 					<div class="form-group">
@@ -84,10 +105,10 @@
 						<label for="status" class="col-form-label">Stock Produk:</label>
 						<input type="number" min="0" name="qty" id="qty" class="form-control">
 					</div>
-
-
-
-
+					
+					
+					
+					
 				</div>
 				<div class="modal-footer">
 					<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -118,13 +139,13 @@
 					<div class="form-group">
 						<label for="status" class="col-form-label">Nama Produk:</label>
 						<input disabled type="text" name="nama" id="nama" class="form-control @error('nama') is-invalid @enderror">
-
+						
 						@error('nama') <div class="invalid-feedback">{{$message}}</div> @enderror
 					</div>
 					<div class="form-group">
 						<label for="status" class="col-form-label">Warna Produk:</label>
 						<input disabled type="text" name="warna" id="warna" class="form-control @error('nama') is-invalid @enderror">
-
+						
 						@error('nama') <div class="invalid-feedback">{{$message}}</div> @enderror
 					</div>
 					<div class="form-group">
@@ -157,8 +178,8 @@
 						<input type="number" name="stock" class="form-control @error('stock') is-invalid @enderror">
 						@error('stock') <div class="invalid-feedback">{{$message}}</div> @enderror
 					</div>
-
-
+					
+					
 				</div>
 				<div class="modal-footer">
 					<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -169,11 +190,9 @@
 	</div>
 </div>
 
-
 @endsection
 
-@section('footer')
-
+@section('script')
 <script>
 	$('#addForm').validate({
 		rules: {
@@ -185,7 +204,7 @@
 			}
 		}
 	});
-
+	
 	$('#editForm').validate({
 		rules: {
 			stock: {
@@ -194,8 +213,8 @@
 			},
 		}
 	});
-
-
+	
+	
 </script>
 
 <script>
@@ -208,22 +227,33 @@
 			info:false,
 			lengthMenu: [[2,3,4,5,-1],[2,3,4,5,"All"]],
 			serverside:true,
+			language: { 
+				paginate: { previous: "<i class='fas fa-angle-left'>", next: "<i class='fas fa-angle-right'>"
+				}
+			},
 			ordering:false,
 			ajax:"{{url('getproduktoko/'.$id_)}}",
 			columns: [
-			{data: 'rownum', name: 'rownum'},
+			{
+				data: null,
+				searchable: false,
+				orderable: false,
+				render: function (data, type, row, meta) {
+					return meta.row + meta.settings._iDisplayStart + 1;
+				}  
+			},
 			{data: 'product_id', name: 'product_id'},
 			{data: 'temp_stock', name: 'temp_stock'},
 			{data: 'harga', name: 'harga'},
 			{data: 'action', name: 'action'},
 			]
-
+			
 		});
-
+		
 		// console.log(data);
-
-
-
+		
+		
+		
 		$('#editModal').on('show.bs.modal', function (event) {
 			var button = $(event.relatedTarget)
 			var id = button.data('id')
@@ -232,9 +262,9 @@
 			var warna = button.data('warna')
 			var harga = button.data('harga')
 			var stock = button.data('stock')
-
+			
 			console.log(product_id);
-
+			
 			jQuery.ajax({
 				url: "{{url('getstock')}}" + '/' + product_id,
 				type: "GET",
@@ -247,7 +277,7 @@
 					$("input[name='temp_stock_']").val(data.stock);
 				},
 			});
-
+			
 			var modal = $(this)
 			modal.find('.modal-body #id').val(id)
 			modal.find('.modal-body #id_product').val(product_id)
@@ -256,20 +286,20 @@
 			modal.find('.modal-body #harga').val(harga)
 			modal.find('.modal-body #stock').val(stock)
 		});
-
+		
 		$('#hapusModal').on('show.bs.modal', function (event) {
 			var button = $(event.relatedTarget)
 			var id = button.data('id')
-
+			
 			var modal = $(this)
 			modal.find('.modal-body #id').val(id)
-
+			
 		});
-
-
-
-
-
+		
+		
+		
+		
+		
 	});
 </script>
 <script>
@@ -277,7 +307,7 @@
 		$('select[name="product_id"]').on('change', function() {
 			let product_id = $(this).val();
 			console.log(product_id);
-
+			
 			jQuery.ajax({
 				url: "{{url('getstock')}}" + '/' + product_id,
 				type: "GET",
@@ -313,18 +343,17 @@
 							$('select[name="product_id"]').append('<option value="' + key + '">'+ value + '-'+data[1][x]+'</option> ');
 							x++;
 						});
-
+						
 					},
 				});
-
+				
 			} else {
 				$("input[name='product_id]").empty();
-
+				
 			}
 		});
 	});
 </script>
-
 
 
 @stop

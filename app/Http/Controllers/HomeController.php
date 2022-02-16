@@ -19,7 +19,8 @@ use App\Exports\RekapExport;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Carbon;
-
+use PhpOffice\PhpSpreadsheet\Calculation\DateTimeExcel\Month;
+use RealRashid\SweetAlert\Facades\Alert;
 
 class HomeController extends Controller
 {
@@ -40,7 +41,8 @@ class HomeController extends Controller
      */
     public function index()
     {
-        $codes = DB::table('code')->where('user_id', Auth::user()->id)->get()->all();
+        $active = 'dashboard';
+        $codes = DB::table('code')->where('user_id', Auth::user()->id)->get();
         $count = count($codes);
         // dd($count);
         if ($count == 0) {
@@ -53,13 +55,50 @@ class HomeController extends Controller
         }
 
         $code = DB::table('code')->where('user_id', Auth::user()->id)->value('code');
-        $pegawai = User::whereNotIn('id', ['153127'])->get()->all();
-        $shop = Toko::all();
-        $rekap = Order::all();
-        // dd($pegawai);
+        $productMonth = Product::whereMonth('created_at', date('m'))->whereYear('created_at', date('Y'))->count();
+        $product = Product::count();
+        $orderMonth = Order::whereMonth('tanggal', date('m'))->whereYear('tanggal', date('Y'))->sum('total');
+        $order = Order::sum('total');
 
 
-        return view('welcome', compact(['code', 'pegawai', 'shop', 'rekap']));
+
+
+        return view('welcome', compact(['code', 'productMonth', 'product', 'orderMonth', 'order', 'active']));
+    }
+
+    public function ajaxChartPenjualan()
+    {
+        $year = date('Y');
+
+        $totalPenjualan = DB::select("SELECT sum(total) as total, MONTHNAME(tanggal) as bulan FROM save_orders where YEAR(tanggal) = '$year' GROUP BY MONTHNAME(tanggal) ORDER BY MONTHNAME(tanggal) desc");
+
+        $totalPenjualanBulan = array();
+        $totalPenjualanValue = array();
+        foreach ($totalPenjualan as $value) {
+            $totalPenjualanBulan[] = $value->bulan;
+            $totalPenjualanValue[] = $value->total;
+        }
+
+        $data = [$totalPenjualanBulan, $totalPenjualanValue];
+
+        return response()->json($data);
+    }
+
+    public function ajaxChartTerjual()
+    {
+        $year = date('Y');
+
+        $totalPenjualan = DB::select("SELECT count(id) as total, MONTHNAME(tanggal) as bulan FROM save_orders where YEAR(tanggal) = '$year' GROUP BY MONTHNAME(tanggal) ORDER BY MONTHNAME(tanggal) desc");
+
+        $totalPenjualanBulan = array();
+        $totalPenjualanValue = array();
+        foreach ($totalPenjualan as $value) {
+            $totalPenjualanBulan[] = $value->bulan;
+            $totalPenjualanValue[] = $value->total;
+        }
+
+        $data = [$totalPenjualanBulan, $totalPenjualanValue];
+        return response()->json($data);
     }
 
     public function dashboard()
@@ -123,7 +162,8 @@ class HomeController extends Controller
 
     public function rekap()
     {
-        return view('admin.rekap');
+        $active = 'rekap';
+        return view('admin.rekap', compact('active'));
     }
 
     public function rekap_pdf(Request $request)
@@ -138,26 +178,25 @@ class HomeController extends Controller
 
     public function rekap_excel(Request $request)
     {
-        $tgl_awal = $request->from_date;
-        $tgl_akhir = $request->to_date;
+        $tgl_awal = date('Y-m-d', strtotime($request->from_date));
+        $tgl_akhir = date('Y-m-d', strtotime($request->to_date));
         $tanggal = date('d M Y', strtotime(Carbon::now()));
-        $total = Order::whereBetween('tanggal', [$tgl_awal, $tgl_akhir])->sum('total');
-        $data = Order::whereBetween('tanggal', [$tgl_awal, $tgl_akhir])->get()->all();
-        
-        return Excel::download(new RekapExport($data, $tgl_awal, $tgl_akhir, $total), "rekap_$tanggal.xlsx");
+
+        $data = DB::select("SELECT sh.name, pd.product_name, pd.warna, so.qty, so.total, so.tanggal, us.name as nama_pegawai FROM save_orders so JOIN shops sh ON so.shop_id = sh.id JOIN products pd ON so.product_id = pd.id JOIN users us ON so.user_id = us.id WHERE so.tanggal BETWEEN '$tgl_awal' AND '$tgl_akhir' ORDER BY so.tanggal desc");
+        // dd($data);
+        return Excel::download(new RekapExport($data, $tgl_awal, $tgl_akhir), "rekap_$tanggal.xlsx");
     }
 
     public function rekap_toko_excel(Request $request)
     {
-        // dd($request->all());
         $id = $request->shop_id;
-        $tgl_awal = $request->from_date;
-        $tgl_akhir = $request->to_date;
-        $total = Order::where('shop_id', $id)->whereBetween('tanggal', [$tgl_awal, $tgl_akhir])->sum('total');
+        $tgl_awal = date('Y-m-d', strtotime($request->from_date));
+        $tgl_akhir = date('Y-m-d', strtotime($request->to_date));
         $tanggal = date('d M Y', strtotime(Carbon::now()));
-        $data = Order::where('shop_id', $id)->whereBetween('tanggal', [$tgl_awal, $tgl_akhir])->get()->all();
+
+        $data = DB::select("SELECT sh.name, pd.product_name, pd.warna, so.qty, so.total, so.tanggal, us.name as nama_pegawai FROM save_orders so JOIN shops sh ON so.shop_id = sh.id JOIN products pd ON so.product_id = pd.id JOIN users us ON so.user_id = us.id WHERE sh.id = '$id' and so.tanggal BETWEEN '$tgl_awal' AND '$tgl_akhir' ORDER BY so.tanggal desc");
         // dd($data);
-        return Excel::download(new RekapExport($data, $tgl_awal, $tgl_akhir, $total), "rekap_$tanggal.xlsx");
+        return Excel::download(new RekapExport($data, $tgl_awal, $tgl_akhir), "rekap_$tanggal.xlsx");
     }
 
     public function rekap_pegawai_excel(Request $request)
@@ -175,39 +214,18 @@ class HomeController extends Controller
     public function getrekap(Request $request)
     {
         if (!empty($request->from_date)) {
-            DB::statement(DB::raw('set @rownum=0'));
-            $rekap = DB::table('save_orders')->whereBetween('tanggal', array($request->from_date, $request->to_date))->select([
-                DB::raw('@rownum  := @rownum  + 1 AS rownum'),
-                'id',
-                'shop_id',
-                'product_id',
-                'qty',
-                'total',
-                'tanggal',
-            ]);
+            $tgl_awal = date('Y-m-d', strtotime($request->from_date));
+            $tgl_akhir = date('Y-m-d', strtotime($request->to_date));
+            $rekap = DB::select("SELECT so.id, so.qty, so.total, so.tanggal, sh.name, pd.product_name, pd.warna, us.name as nama_pegawai FROM save_orders so JOIN shops sh ON so.shop_id = sh.id JOIN products pd ON so.product_id = pd.id JOIN users us ON so.user_id = us.id WHERE so.tanggal BETWEEN '$tgl_awal' AND '$tgl_akhir' ORDER BY so.tanggal desc");
         } else {
-            DB::statement(DB::raw('set @rownum=0'));
-            $rekap = DB::table('save_orders')->select([
-                DB::raw('@rownum  := @rownum  + 1 AS rownum'),
-                'id',
-                'shop_id',
-                'product_id',
-                'qty',
-                'total',
-                'tanggal',
-            ]);
+            $rekap = DB::select("SELECT so.id, so.qty, so.total, so.tanggal, sh.name, pd.product_name, pd.warna, us.name as nama_pegawai FROM save_orders so JOIN shops sh ON so.shop_id = sh.id JOIN products pd ON so.product_id = pd.id JOIN users us ON so.user_id = us.id  ORDER BY so.tanggal desc");
         }
-        // dd($toko)
+        // dd($rekap);
 
 
         $datatables = Datatables::of($rekap)
-            ->editColumn('shop_id', function ($row) {
-                return DB::table('shops')->where('id', $row->shop_id)->value('name');
-            })
-            ->editColumn('product_id', function ($row) {
-                $product = DB::table('products')->where('id', $row->product_id)->value('product_name');
-                $warna = DB::table('products')->where('id', $row->product_id)->value('warna');
-                return $product . ' - ' . $warna;
+            ->editColumn('product_name', function ($row) {
+                return $row->product_name . ' - ' . $row->warna;
             })
             ->editColumn('total', function ($row) {
                 return number_format($row->total);
@@ -219,9 +237,8 @@ class HomeController extends Controller
             </button>
             </a>';
                 return $btn;
-                // dd($row);
             })
-            ->rawColumns(['shop_id', 'product_id', 'total', 'action'])
+            ->rawColumns(['total', 'action'])
             ->addIndexColumn();
 
         return $datatables->make(true);
@@ -229,10 +246,11 @@ class HomeController extends Controller
 
     public function hapus_rekap(Request $request)
     {
-        // dd($request->all());
+
         $data = Order::findOrFail($request->id);
         $data->delete();
 
-        return back()->with('success', 'Rekap berhasil dihapus');
+        Alert::success('Data penjualan berhasil dihapus');
+        return back();
     }
 }

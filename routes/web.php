@@ -11,12 +11,13 @@
 |
 */
 
-// use Illuminate\Routing\Route;
+use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 
 Route::get('/', 'HomeController@index')->middleware('auth')->name('index');
 
 Route::get('testing', function () {
-    return view('admin.product.product');
+    return view('admin.index');
 });
 Route::group(['middleware' => ['auth', 'admin']], function () {
     Route::post('hapus_rekap', 'HomeController@hapus_rekap');
@@ -62,6 +63,12 @@ Route::group(['middleware' => ['auth', 'admin']], function () {
         'uses' => 'CategoryController@getcategory',
         'as' => 'ajax.get.categories',
     ]);
+
+    Route::get('ajax-chart-penjualan', 'HomeController@ajaxChartPenjualan');
+    Route::get('ajax-chart-terjual', 'HomeController@ajaxChartTerjual');
+
+    Route::get('ajax-chart-penjualan-shop/{id}', 'ShopController@ajaxChartPenjualan');
+    Route::get('ajax-chart-terjual-shop/{id}', 'ShopController@ajaxChartTerjual');
 });
 
 Route::group(['middleware' => ['auth']], function () {

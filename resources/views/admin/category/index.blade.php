@@ -1,42 +1,63 @@
-@extends('layouts.master')
+@extends('admin._layouts.master')
 
 @section('content')
 
 <section class="content">
-    <div class="row justify-content-center mt-3">
-        <div class="col-10">
-            <div class="card">
-                <div class="card-header">
-                    <h4 class="text-dark">Daftar Kategori</h4>
-                </div>
-                
-                <!-- /.card-header -->
-                <div class="card-body">
-                    <div class="ml-auto mb-3">
-                        <button class="btn btn-primary" data-toggle="modal" data-target="#createModal" id="create">Tambah Kategori</button>
-                    </div>
-                    <div class="table-responsive">
-                    <table id="example2" class="dataTable table table-bordered table-hover">
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>Nama</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        
-                    </table>
+    <div class="header bg-primary pb-6">
+        <div class="container-fluid">
+            <div class="header-body">
+                <div class="row align-items-center py-4">
+                    <div class="col-lg-6 col-7">
+                        <h6 class="h2 text-white d-inline-block mb-0">Kategori Produk</h6>
+                        <nav aria-label="breadcrumb" class="d-none d-md-inline-block ml-md-4">
+                            <ol class="breadcrumb breadcrumb-links breadcrumb-dark">
+                                <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fas fa-home"></i></a></li>
+                                <li class="breadcrumb-item"><a href="#">Kategori Produk</a></li>
+                            </ol>
+                        </nav>
                     </div>
                 </div>
-                <!-- /.card-body -->
             </div>
-            <!-- /.card -->
-            <!-- /.card -->
         </div>
-        <!-- /.col -->
     </div>
-    <!-- /.row -->
+    
+    <div class="container-fluid mt--6">
+        <!-- Table -->
+        <div class="row">
+            <div class="col">
+                <div class="card">
+                    <!-- Card header -->
+                    <div class="card-header">
+                        <div class="row">
+                            <div class="col-4">
+                                <h3 class="mb-0">List Data Kategori</h3>
+                            </div>
+                            <div class="col-8 text-right">
+                                <button class="btn btn-sm btn-primary" data-toggle="modal" data-target="#createModal" id="create">Tambah Kategori</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="table-responsive py-4">
+                        <table class="table table-flush" id="dataTable">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th>No</th>
+                                    <th>Nama</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+    </div>
 </section>
+
+@endsection
+
+@section('modal')
 
 <!-- Create Modal -->
 <div class="modal fade" id="createModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
@@ -128,9 +149,10 @@
         </div>
     </div>
 </div>
+
 @endsection
 
-@section('footer')
+@section('script')
 
 <script>
     $('#addForm').validate({
@@ -140,7 +162,7 @@
             }
         }
     });
-
+    
     $('#editForm').validate({
         rules: {
             name: {
@@ -152,7 +174,7 @@
 
 <script>
     $(document).ready(function(){
-        var table = $('.dataTable').DataTable({
+        var table = $('#dataTable').DataTable({
             "pageLength":5,
             processing:true,
             searching:true,
@@ -160,7 +182,10 @@
             info:false,
             lengthMenu: [[2,3,4,5,-1],[2,3,4,5,"All"]],
             serverside:true,
-            ordering:false,
+            language: { 
+                paginate: { previous: "<i class='fas fa-angle-left'>", next: "<i class='fas fa-angle-right'>"
+                }
+            },
             ajax:"{{route('ajax.get.categories')}}",
             columns: [
             {data: 'rownum', name: 'rownum'},
@@ -196,5 +221,6 @@
         
     });
 </script>
+
 
 @stop

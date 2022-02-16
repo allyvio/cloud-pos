@@ -4,10 +4,11 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use DataTables;
 use App\Category;
 use Illuminate\Support\Facades\Auth;
+use RealRashid\SweetAlert\Facades\Alert;
 use Uuid;
+use Yajra\DataTables\Facades\DataTables;
 
 class CategoryController extends Controller
 {
@@ -18,7 +19,8 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        return view('admin.category.index');
+        $active = 'kategori';
+        return view('admin.category.index', compact('active'));
     }
 
     public function getcategory(Request $request)
@@ -28,13 +30,13 @@ class CategoryController extends Controller
             DB::raw('@rownum  := @rownum  + 1 AS rownum'),
             'id',
             'name',
-            
+
         ]);
 
         // dd($barang)
 
 
-        $datatables = Datatables::of($category)
+        $datatables = DataTables::of($category)
             ->addColumn('action', function ($row) {
                 $btn = '<button id="edit-user" data-toggle="modal" data-target="#editModal" data-nama="' . $row->name . '" data-id="' . $row->id . '"  class="delete btn btn-info btn-sm">
                 <i class="fas fa-edit"></i>
@@ -67,6 +69,7 @@ class CategoryController extends Controller
         $data->created_by = Auth::user()->name;
         $data->save();
 
+        Alert::success('Kategori berhasil ditambahkan');
         return back();
     }
 
@@ -84,9 +87,10 @@ class CategoryController extends Controller
         $data = Category::findOrFail($request->id);
         $data->name = $request->name;
         $data->slug = str_slug($request->name, '-');
-        $data->updated_by = Auth::user()->name;
+        $data->created_by = Auth::user()->name;
         $data->save();
 
+        Alert::success('Kategori berhasil diperbarui');
         return back();
     }
 
@@ -98,7 +102,14 @@ class CategoryController extends Controller
      */
     public function destroy(Request $request)
     {
-        Category::destroy($request->id);
+        $cek = DB::table('category_product')->where('category_id', $request->id)->count();
+
+        if ($cek == 0) {
+            Category::destroy($request->id);
+            Alert::success('Kategori berhasil dihapus');
+        } else {
+            Alert::error('Kategori gagal dihapus, karena kategori ini sedang di gunakan disalah satu produk');
+        }
         return back();
     }
 }

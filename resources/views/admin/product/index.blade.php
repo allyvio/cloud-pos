@@ -1,67 +1,82 @@
-@extends('layouts.master')
+@extends('admin._layouts.master')
 
 @section('content')
 
 <section class="content">
-    <div class="row justify-content-center mt-3">
-        <div class="col-md-10">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">Daftar Produk</h3>
-                </div>
-
-
-                <!-- /.card-header -->
-                <div class="card-body">
-                    <div class="mb-3">
-                    <div class="row">
-							<div class="col-md-4 mb-3">
-                            <select name="kategori" id="kategori" class="custom-select">
-                                <option selected disabled>Pilih Kategori</option>
-                                @php
-                                $category = \DB::table('categories')->get();
-                                @endphp
-                                @foreach ($category as $item)
-                                <option value="{{$item->id}}">{{$item->name}}</option>
-                                @endforeach
-						</select>
-							</div>
-							<div class="col-md-4 mb-3">
-								<button type="filter" name="filter" id="filter" class="btn btn-primary">Filter</button>
-								<button type="button" name="refresh" id="refresh" class="btn btn-default">Refresh</button>
-							</div>
-
-						</div>
-                        <button class="btn btn-primary" data-toggle="modal" data-target="#createModal" id="create">Tambah Produk</button>
-                        <a class="btn btn-info ml-auto" href="{{url('rekapStock')}}">Rekap Stock</a>
+    <div class="header bg-primary pb-6">
+        <div class="container-fluid">
+            <div class="header-body">
+                <div class="row align-items-center py-4">
+                    <div class="col-lg-6 col-7">
+                        <h6 class="h2 text-white d-inline-block mb-0">Produk Saya</h6>
+                        <nav aria-label="breadcrumb" class="d-none d-md-inline-block ml-md-4">
+                            <ol class="breadcrumb breadcrumb-links breadcrumb-dark">
+                                <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fas fa-home"></i></a></li>
+                                <li class="breadcrumb-item"><a href="#">Produk Saya</a></li>
+                            </ol>
+                        </nav>
                     </div>
-                                        
-                    <table id="dataTable" class="table table-bordered table-hover">
-                        <thead>
-                            <tr>
-                                <th>No</th>
-                                <th>Nama</th>
-                                <th>Harga Beli</th>
-                                <th>Harga Jual</th>
-                                <th>Diskon</th>
-                                <th>Harga total</th>
-                                <th>Stock</th>
-                                <th>Stock Tersedia</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-
-                    </table>
-                    
                 </div>
-                <!-- /.card-body -->
             </div>
-            <!-- /.card -->
-            <!-- /.card -->
         </div>
-        <!-- /.col -->
     </div>
-    <!-- /.row -->
+    
+    <div class="container-fluid mt--6">
+        <!-- Table -->
+        <div class="row">
+            <div class="col">
+                <div class="card">
+                    <!-- Card header -->
+                    <div class="card-header">
+                        <div class="row">
+                            <div class="col-4">
+                                <h3 class="mb-0">List Data Produk</h3>
+                            </div>
+                            <div class="col-8 text-right">
+                                <button class="btn btn-sm btn-primary" data-toggle="modal" data-target="#createModal" id="create">Tambah Produk</button>
+                                <a href="{{url('rekapStock')}}" class="btn btn-sm btn-primary">Rekap Stok</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="table-responsive py-4">
+                        <div class="row px-4">
+                            <div class="col-md-4 mb-4">
+                                <select name="kategori" id="kategori" class="form-control" data-toggle="select">
+                                    <option selected disabled>Pilih Kategori</option>
+                                    @php
+                                    $category = \DB::table('categories')->get();
+                                    @endphp
+                                    @foreach ($category as $item)
+                                    <option value="{{$item->id}}">{{$item->name}}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-4">
+                                <button type="filter" name="filter" id="filter" class="btn btn-primary">Filter</button>
+                                <button type="button" name="refresh" id="refresh" class="btn btn-default">Refresh</button>
+                            </div>
+                        </div>
+                        <table class="table table-flush" id="dataTable">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th>No</th>
+                                    <th>Nama</th>
+                                    <th>Harga Beli</th>
+                                    <th>Harga Jual</th>
+                                    <th>Diskon</th>
+                                    <th>Harga Total</th>
+                                    <th>Stok</th>
+                                    <th>Stok Tersedia</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+    </div>
 </section>
 
 <!-- Create Modal -->
@@ -76,7 +91,7 @@
             </div>
             <form id="tambahForm" name="tambahForm" action="{{route('product.store')}}" method="POST" enctype="multipart/form-data">
                 @csrf
-
+                
                 <div class="modal-body">
                     {{-- <input type="hidden" name="user_id" id="user_id" value=""> --}}
                     <div class="form-group">
@@ -85,7 +100,7 @@
                             <select class="custom-select @error('category') is-invalid @enderror" name="category" id="category">
                                 {{-- <option selected>Choose...</option> --}}
                                 @foreach ($category as $item)
-                            <option value="{{$item->id}}">{{$item->name}}</option>
+                                <option value="{{$item->id}}">{{$item->name}}</option>
                                 @endforeach
                             </select>
                             @error('category') <div class="invalid-feedback">{{$message}}</div> @enderror
@@ -117,9 +132,9 @@
                         <label for="status" class="col-form-label">Stock Produk:</label>
                         <input type="number" name="stock" id="stock" class="form-control">
                     </div>
-
-
-
+                    
+                    
+                    
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -149,7 +164,7 @@
                     <div class="form-group">
                         <label for="status" class="col-form-label">Nama Produk:</label>
                         <input type="text" name="nama" id="nama" class="form-control @error('nama') is-invalid @enderror">
-
+                        
                         @error('nama') <div class="invalid-feedback">{{$message}}</div> @enderror
                     </div>
                     <div class="form-group">
@@ -177,20 +192,22 @@
                         <input id="stock" disabled class="form-control">
                     </div>
                     <div class="form-check">
-                        <div class="col-md-3">
-                            <input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios1" value="tambah" checked>
-                            <label class="form-check-label" for="exampleRadios1">
-                                Tambah Stock
-                            </label>
-                        </div>
-                        <div class="col-md-3">
-                            <input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios2" value="kurang">
-                            <label class="form-check-label" for="exampleRadios2">
-                                Tarik Stock
-                            </label>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios1" value="tambah" checked>
+                                <label class="form-check-label" for="exampleRadios1">
+                                    Tambah Stock
+                                </label>
+                            </div>
+                            <div class="col-md-6">
+                                <input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios2" value="kurang">
+                                <label class="form-check-label" for="exampleRadios2">
+                                    Tarik Stock
+                                </label>
+                            </div>
                         </div>
                     </div>
-
+                    
                     <div class="form-group">
                         <label for="status" class="col-form-label">Stock Produk:</label>
                         <input type="number" name="stock" class="form-control @error('stock') is-invalid @enderror">
@@ -222,7 +239,7 @@
                 <div class="modal-body">
                     <input type="hidden" name="id" id="id" value="">
                     Apakah anda yakin akan menghapus produk ini ?
-
+                    
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -234,7 +251,7 @@
 </div>
 @endsection
 
-@section('footer')
+@section('script')
 <script>
     $('#tambahForm').validate({
         rules: {
@@ -297,7 +314,7 @@
                 required: true,
                 digits: true
             }
-
+            
         }
     });
 </script>
@@ -306,58 +323,56 @@
     $(document).ready(function(){
         load_data();
         function load_data(kategori = ''){
-        $('#dataTable').DataTable({
-            "pageLength":5,
-            processing:true,
-            searching:true,
-            order:[[0,'asc']],
-            info:false,
-            lengthMenu: [[5,10,15,20,-1],[5,10,15,20,"All"]],
-            serverside:true,
-            ordering:true,
-
-            ajax:
-				{
-					url:"{{route('ajax.get.produk')}}",
-					data:{kategori:kategori}
-				},
-            columns: [
-            {data: 'rownum', name: 'rownum'},
-            {data: 'product_name', name: 'product_name'},
-            {data: 'harga_beli', name: 'harga_beli'},
-            {data: 'price', name: 'price'},
-            {data: 'diskon', name: 'diskon'},
-            {data: 'final_price', name: 'final_price'},
-            {data: 'stock', name: 'stock'},
-            {data: 'temp_stock', name: 'temp_stock'},
-            {data: 'action', name: 'action'}
-            ]
-
+            $('#dataTable').DataTable({
+                "pageLength":10,
+                processing:true,
+                searching:true,
+                order:[[0,'asc']],
+                info:false,
+                lengthMenu: [[5,10,15,20,-1],[5,10,15,20,"All"]],
+                serverside:true,
+                ordering:true,
+                language: { 
+                    paginate: { previous: "<i class='fas fa-angle-left'>", next: "<i class='fas fa-angle-right'>"
+                    }
+                },
+                ajax:{
+                    url:"{{route('ajax.get.produk')}}",
+                    data:{kategori:kategori}
+                },
+                columns: [
+                {data: 'rownum', name: 'rownum'},
+                {data: 'product_name', name: 'product_name'},
+                {data: 'harga_beli', name: 'harga_beli'},
+                {data: 'price', name: 'price'},
+                {data: 'diskon', name: 'diskon'},
+                {data: 'final_price', name: 'final_price'},
+                {data: 'stock', name: 'stock'},
+                {data: 'temp_stock', name: 'temp_stock'},
+                {data: 'action', name: 'action'}
+                ]
+                
+            });
+        }
+        $('#filter').click(function(){
+            var kategori = $('#kategori').val();
+            if(kategori != '')
+            {
+                $('#dataTable').DataTable().destroy();
+                load_data(kategori);
+            }
+            else
+            {
+                alert('Tanggal wajib diisi');
+            }
         });
-    }
-    $('#filter').click(function(){
-			var kategori = $('#kategori').val();
-			if(kategori != '')
-			{
-			$('#dataTable').DataTable().destroy();
-			load_data(kategori);
-			}
-			else
-			{
-			alert('Tanggal wajib diisi');
-			}
-		});
-		$('#refresh').click(function(){
-			$('#kategori').val('');
-			$('#dataTable').DataTable().destroy();
-			load_data();
-		});
-        // jQuery.validator.setDefaults({
-        //     debug: true,
-        //     success: "valid"
-        // });
-
-
+        $('#refresh').click(function(){
+            $('#kategori').val('');
+            $('#dataTable').DataTable().destroy();
+            load_data();
+        });
+        
+        
         $('#editModal').on('show.bs.modal', function (event) {
             var button = $(event.relatedTarget)
             var id = button.data('id')
@@ -367,7 +382,7 @@
             var diskon = button.data('diskon')
             var stock = button.data('stock')
             var kode = button.data('kode')
-
+            
             var modal = $(this)
             modal.find('.modal-body #id').val(id)
             modal.find('.modal-body #nama').val(nama)
@@ -377,18 +392,15 @@
             modal.find('.modal-body #stock').val(stock)
             modal.find('.modal-body #kode').val(kode)
         });
-
+        
         $('#hapusModal').on('show.bs.modal', function (event) {
             var button = $(event.relatedTarget)
             var id = button.data('id')
-
+            
             var modal = $(this)
             modal.find('.modal-body #id').val(id)
-
+            
         });
-
-
-
     });
 </script>
 
