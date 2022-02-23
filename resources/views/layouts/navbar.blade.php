@@ -1,70 +1,89 @@
-<nav style="background-color:#f7ce05;border:none;" class="main-header navbar navbar-expand navbar-light navbar-white">
-    <div class="container">
-        <a href="{{url('')}}" class="navbar-brand">
-            <img src="{{asset('img/logo.png')}}" alt="image" class="brand-image">
-            <!-- <span class="brand-text font-weight-light">KopiKita</span> -->
-        </a>
-
-        <!-- Left navbar links -->
-        @if (Auth::user()->hasAnyRole('admin'))
-
-        <ul class="navbar-nav">
-            <li class="nav-item dropdown">
-                <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
-                    {{ __('Manage') }} <span class="caret"></span>
-                </a>
-                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                    <a href="{{route('product.index')}}" class="nav-link">Produk</a>
-                    <a href="{{route('shop.index')}}" class="nav-link">Toko</a>
-                    <a href="{{route('users.index')}}" class="nav-link">Pegawai</a>
-                    <a href="{{route('categories.index')}}" class="nav-link">Kategori</a>
-                    <a href="{{url('rekap')}}" class="nav-link">Rekap</a>
-                </div>
-
-            </li>
-        </ul>
-        @endif
-
-        <!-- Right navbar links -->
-        <ul class="navbar-nav ml-auto">
-            <!-- Authentication Links -->
-            @guest
-            <li class="nav-item">
-                <a class="nav-link" href="{{ route('login') }}">{{ __('Login') }}</a>
-            </li>
-            @if (Route::has('register'))
-            <li class="nav-item">
-                <a class="nav-link" href="{{ route('register') }}">{{ __('Register') }}</a>
-            </li>
-            @endif
-            @else
-            <li class="nav-item dropdown">
-                <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
-                    {{ Auth::user()->name }} <span class="caret"></span>
-                </a>
-                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                <a class="dropdown-item" href="{{url('reset/'.Auth::user()->id)}}">
-                    {{ __('Ubah Password') }}
-                </a>
-
-                @if (Auth::user()->hasAnyRole('kasir'))
-                <a class="dropdown-item" href="{{url('rekap/'.Auth::user()->id)}}">
-                    {{ __('Rekap Penjualan') }}
-                </a>
-                @endif
-                    <a class="dropdown-item" href="{{ route('logout') }}"
-                    onclick="event.preventDefault();
-                    document.getElementById('logout-form').submit();">
-                    {{ __('Logout') }}
-                </a>
-
-                <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
-                    @csrf
-                </form>
+ <nav id="navbar-main" class="navbar navbar-horizontal navbar-transparent navbar-main navbar-expand-lg navbar-light">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="../../pages/dashboards/dashboard.html">
+        <img src="../../assets/img/brand/white.png">
+      </a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-collapse" aria-controls="navbar-collapse" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="navbar-collapse navbar-custom-collapse collapse" id="navbar-collapse">
+        <div class="navbar-collapse-header">
+          <div class="row">
+            <div class="col-6 collapse-brand">
+              <a href="../../pages/dashboards/dashboard.html">
+                <img src="../../assets/img/brand/blue.png">
+              </a>
             </div>
-
-        </li>
-        @endguest
-    </ul>
-</div>
-</nav>
+            <div class="col-6 collapse-close">
+              <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbar-collapse" aria-controls="navbar-collapse" aria-expanded="false" aria-label="Toggle navigation">
+                <span></span>
+                <span></span>
+              </button>
+            </div>
+          </div>
+        </div>
+        <ul class="navbar-nav mr-auto">
+          <li class="nav-item">
+            <a href="../../pages/dashboards/dashboard.html" class="nav-link">
+              <span class="nav-link-inner--text">Dashboard</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="../../pages/examples/pricing.html" class="nav-link">
+              <span class="nav-link-inner--text">Pricing</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="../../pages/examples/login.html" class="nav-link">
+              <span class="nav-link-inner--text">Login</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="../../pages/examples/register.html" class="nav-link">
+              <span class="nav-link-inner--text">Register</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="../../pages/examples/lock.html" class="nav-link">
+              <span class="nav-link-inner--text">Lock</span>
+            </a>
+          </li>
+        </ul>
+        <hr class="d-lg-none" />
+        <ul class="navbar-nav align-items-lg-center ml-lg-auto">
+          <li class="nav-item">
+            <a class="nav-link nav-link-icon" href="https://www.facebook.com/creativetim" target="_blank" data-toggle="tooltip" data-original-title="Like us on Facebook">
+              <i class="fab fa-facebook-square"></i>
+              <span class="nav-link-inner--text d-lg-none">Facebook</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link nav-link-icon" href="https://www.instagram.com/creativetimofficial" target="_blank" data-toggle="tooltip" data-original-title="Follow us on Instagram">
+              <i class="fab fa-instagram"></i>
+              <span class="nav-link-inner--text d-lg-none">Instagram</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link nav-link-icon" href="https://twitter.com/creativetim" target="_blank" data-toggle="tooltip" data-original-title="Follow us on Twitter">
+              <i class="fab fa-twitter-square"></i>
+              <span class="nav-link-inner--text d-lg-none">Twitter</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link nav-link-icon" href="https://github.com/creativetimofficial" target="_blank" data-toggle="tooltip" data-original-title="Star us on Github">
+              <i class="fab fa-github"></i>
+              <span class="nav-link-inner--text d-lg-none">Github</span>
+            </a>
+          </li>
+          <li class="nav-item d-none d-lg-block ml-lg-4">
+            <a href="https://www.creative-tim.com/product/argon-dashboard-pro" target="_blank" class="btn btn-neutral btn-icon">
+              <span class="btn-inner--icon">
+                <i class="fas fa-shopping-cart mr-2"></i>
+              </span>
+              <span class="nav-link-inner--text">Purchase now</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
